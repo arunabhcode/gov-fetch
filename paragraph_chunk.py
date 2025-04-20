@@ -78,5 +78,5 @@ if __name__ == "__main__":
     # combined_chunks = combine_chunks(filtered_chunks)
     prompt = generate_prompt(all_chunks)
     # print(prompt)
-    response = ollama.chat(model="qwen2.5:7b", messages=[{"role": "user", "content": prompt}], options={"num_ctx": 8192, temperature=0})
+    response = ollama.chat(model="qwen2.5:7b", messages=[{"role": "user", "content": prompt}], options={"num_ctx": 8192, "temperature": 0.0})
     print(response)
