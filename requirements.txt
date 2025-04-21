@@ -1,2 +1,7 @@
 uagents
 uagents-ai-engine
+fetch-ai
+requests
+beautifulsoup4
+nltk
+ollama
