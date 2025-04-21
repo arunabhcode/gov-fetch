@@ -1,0 +1,132 @@
+from uagents import Agent, Context, Model, Protocol
+import os
+import ollama  # Make sure ollama library is installed
+
+
+# Define the message model for processed text chunks (from PreprocessorAgent)
+class ProcessedData(Model):
+    chunks: list[str]
+
+
+# Define the message model for Q&A results
+class QAResult(Model):
+    prompt: str
+    answer: str
+
+
+# Define the protocol for Q&A
+qna_proto = Protocol("QandA")
+
+
+# Define the Q&A Agent
+class QandAAgent(Agent):
+    def __init__(
+        self,
+        name: str,
+        seed: str,
+        mail_address: str,
+        keyword: str,
+        ollama_model: str = "qwen2.5:14b",
+    ):
+        super().__init__(name=name, seed=seed)
+        self._mail_address = mail_address
+        self._keyword = keyword
+        self._ollama_model = ollama_model
+        # Check if Ollama server is running (optional but good practice)
+        try:
+            ollama.list()
+        except Exception as e:
+            self.logger.warning(f"Ollama server might not be running or reachable: {e}")
+
+    @qna_proto.on_message(model=ProcessedData, replies=QAResult)
+    async def handle_processed_data(
+        self, ctx: Context, sender: str, msg: ProcessedData
+    ):
+        ctx.logger.info(
+            f"Received {len(msg.chunks)} chunks from {sender}. Performing Q&A."
+        )
+
+        # Step 1: Filter chunks by keyword
+        filtered_chunks = self.filter_chunks_by_keyword(msg.chunks, self._keyword)
+        if not filtered_chunks:
+            ctx.logger.warning(
+                f"No chunks found containing keyword '{self._keyword}'. Cannot generate prompt."
+            )
+            return  # Or send an error message?
+
+        # Step 2: Generate the prompt
+        # Note: generate_prompt from paragraph_chunk.py has a hardcoded question.
+        # Consider making the question dynamic or part of the agent's configuration.
+        try:
+            prompt = self.generate_prompt(filtered_chunks)
+            ctx.logger.info("Generated prompt based on filtered chunks.")
+        except Exception as e:
+            ctx.logger.error(f"Error generating prompt: {e}")
+            return
+
+        # Step 3: Call Ollama for the answer
+        try:
+            ctx.logger.info(f"Querying Ollama model '{self._ollama_model}'...")
+            response = ollama.chat(
+                model=self._ollama_model,
+                messages=[{"role": "user", "content": prompt}],
+                # Options from paragraph_chunk.py, make configurable if needed
+                options={"num_ctx": 8192, "temperature": 0.0},
+            )
+            answer = response["message"]["content"]
+            ctx.logger.info("Received answer from Ollama.")
+        except Exception as e:
+            ctx.logger.error(f"Error querying Ollama: {e}")
+            answer = f"Error: Could not get answer from Ollama. {e}"  # Send error back
+
+        # Step 4: Send Prompt and Answer to Mail Agent
+        await ctx.send(self._mail_address, QAResult(prompt=prompt, answer=answer))
+        ctx.logger.info(f"Sent Q&A result to {self._mail_address}")
+
+    def filter_chunks_by_keyword(self, chunks: list[str], keyword: str) -> list[str]:
+        """Filters a list of text chunks, returning only those containing the keyword (case-insensitive)."""
+        matching_chunks = []
+        keyword_lower = keyword.lower()
+        for chunk in chunks:
+        if keyword_lower in chunk.lower():
+            matching_chunks.append(chunk)
+        if not matching_chunks:
+            logging.warning(f"No chunks found containing the keyword: '{keyword}'")
+        else:
+            logging.info(
+                f"Found {len(matching_chunks)} chunks containing the keyword: '{keyword}'"
+            )
+        return matching_chunks
+
+
+    # combine chunks into a single string
+    def combine_chunks(self, chunks: list[str]) -> str:
+        return " ".join(chunks)
+
+
+    def generate_prompt(self, chunks: list[str]) -> str:
+        combined_chunks = self.combine_chunks(chunks)
+        prompt = f"""
+        You are a helpful assistant that can answer questions about the following markdown text that extracts dates from the two provided tables with information about country and visa type, THE FIRST TABLE IS FOR FINAL ACTION DATES AND THE SECOND TABLE IS FOR DATES OF FILING:
+        {combined_chunks}
+
+        What are the two dates for employment based 2nd preference category for india?
+        """
+        return prompt
+
+# Example Usage (if run directly, replace with actual setup in main.py)
+if __name__ == "__main__":
+    QNA_SEED = os.getenv("QNA_SEED", "qna_secret_phrase")
+    MAIL_ADDRESS = "agent1..."  # Replace with actual Mail agent address
+    SEARCH_KEYWORD = "2nd"  # Example keyword
+
+    agent = QandAAgent(
+        name="qna_agent",
+        seed=QNA_SEED,
+        mail_address=MAIL_ADDRESS,
+        keyword=SEARCH_KEYWORD,
+    )
+    # Expose the agent's endpoint for the PreprocessorAgent
+    print(f"QnA Agent Address: {agent.address}")
+
+    agent.run()
