@@ -20,9 +20,13 @@ Gov Fetch is a platform that queries government websites, integrates their data 
 
 - Fetch.ai
 - Ollama
+- TxtAI
 - Python
+- Mailgun
 
 ## Resources
 
 - [Fetch.ai Documentation](https://fetch.ai/docs)
 - [Ollama python repo](https://github.com/ollama/ollama-python)
+- [TxtAI Documentation](https://neuml.github.io/txtai/)
+- [Mailgun Documentation](https://documentation.mailgun.com/)
