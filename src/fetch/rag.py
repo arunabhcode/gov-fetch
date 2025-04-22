@@ -26,7 +26,7 @@ class QandAAgent(Agent):
         seed: str,
         mail_address: str,
         keyword: str,
-        ollama_model: str = "qwen2.5:14b",
+        ollama_model: str = "qwen2.5:32b",
     ):
         super().__init__(name=name, seed=seed)
         self._mail_address = mail_address
@@ -93,12 +93,6 @@ class QandAAgent(Agent):
         for chunk in chunks:
             if keyword_lower in chunk.lower():
                 matching_chunks.append(chunk)
-            if not matching_chunks:
-                print(f"No chunks found containing the keyword: '{keyword}'")
-            else:
-                print(
-                    f"Found {len(matching_chunks)} chunks containing the keyword: '{keyword}'"
-                )
         return matching_chunks
 
     # combine chunks into a single string
@@ -108,10 +102,10 @@ class QandAAgent(Agent):
     def generate_prompt(self, chunks: list[str]) -> str:
         combined_chunks = self.combine_chunks(chunks)
         prompt = f"""
-        You are a helpful assistant that can answer questions about the following markdown text that extracts dates from the two provided tables with information about country and visa type, THE FIRST TABLE IS FOR FINAL ACTION DATES AND THE SECOND TABLE IS FOR DATES OF FILING:
+        You are a helpful assistant that can answer questions using the following markdown text with dates from two provided tables with information about country and visa type, THE FIRST TABLE IS FOR FINAL ACTION DATES AND THE SECOND TABLE IS FOR DATES OF FILING:
         {combined_chunks}
 
-        What are the final action dates for family based f2a visa for india?
+        What are the two dates for family based f2a visa for india?
         """
         return prompt
 

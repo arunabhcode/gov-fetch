@@ -18,7 +18,7 @@ TARGET_URL = os.getenv(
     "https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2025/visa-bulletin-for-may-2025.html",
 )
 SEARCH_KEYWORD = os.getenv("SEARCH_KEYWORD", "f2a")  # Keyword for Q&A filtering
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:14b")  # Ollama model for RAG
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:32b")  # Ollama model for RAG
 
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
 MAILGUN_DOMAIN = os.getenv("MAILGUN_DOMAIN")
