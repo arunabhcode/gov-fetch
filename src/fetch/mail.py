@@ -10,10 +10,6 @@ class QAResult(Model):
     answer: str
 
 
-# Define the protocol (can reuse QnA or define a new one)
-mail_proto = Protocol("MailNotifier")
-
-
 # Define the Mail Agent
 class MailAgent(Agent):
     def __init__(
@@ -31,8 +27,8 @@ class MailAgent(Agent):
         self._mailgun_url = (
             f"https://api.mailgun.net/v3/{self._mailgun_domain}/messages"
         )
+        self.on_message(model=QAResult)(self.handle_qa_result)
 
-    @mail_proto.on_message(model=QAResult)
     async def handle_qa_result(self, ctx: Context, sender: str, msg: QAResult):
         ctx.logger.info(f"Received Q&A result from {sender}. Preparing email.")
 

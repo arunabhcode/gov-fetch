@@ -14,10 +14,6 @@ class QAResult(Model):
     answer: str
 
 
-# Define the protocol for Q&A
-qna_proto = Protocol("QandA")
-
-
 # Define the Q&A Agent
 class QandAAgent(Agent):
     def __init__(
@@ -101,12 +97,10 @@ class QandAAgent(Agent):
 
     def generate_prompt(self, chunks: list[str]) -> str:
         combined_chunks = self.combine_chunks(chunks)
-        prompt = f"""
-        You are a helpful assistant that can answer questions using the following markdown text with dates from two provided tables with information about country and visa type, THE FIRST TABLE IS FOR FINAL ACTION DATES AND THE SECOND TABLE IS FOR DATES OF FILING:
-        {combined_chunks}
+        prompt = f"""You are a helpful assistant that can answer questions using the following markdown text with dates from two provided tables with information about country and visa type, THE FIRST TABLE IS FOR FINAL ACTION DATES AND THE SECOND TABLE IS FOR DATES OF FILING:
+{combined_chunks}
 
-        What are the two dates for family based f2a visa for india?
-        """
+What are the two dates for family based f2a visa for india?"""
         return prompt
 
 

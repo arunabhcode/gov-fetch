@@ -14,10 +14,6 @@ class ProcessedData(Model):
     chunks: list[str]
 
 
-# Define the protocol for preprocessing
-preprocessor_proto = Protocol("Preprocessor")
-
-
 # Define the Preprocessor Agent
 class PreprocessorAgent(Agent):
     def __init__(self, name: str, seed: str, qna_address: str):
