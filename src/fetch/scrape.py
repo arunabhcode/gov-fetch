@@ -11,10 +11,6 @@ class ScrapedData(Model):
     text: str
 
 
-# Define the protocol for scraping
-scrape_proto = Protocol("Scrape")
-
-
 # Define the Scraper Agent
 class ScraperAgent(Agent):
     def __init__(
@@ -25,14 +21,15 @@ class ScraperAgent(Agent):
         self._preprocessor_address = preprocessor_address
         # Initialize Textractor (assuming default settings)
         self._textractor = Textractor()
+        # Register the interval handler using decorator pattern
+        self.on_interval(period=300.0)(self.fetch_and_extract)
 
-    @scrape_proto.on_interval(period=3600.0)  # Run once per hour, adjust as needed
     async def fetch_and_extract(self, ctx: Context):
         ctx.logger.info(f"Fetching content from {self._target_url}")
         try:
             response = requests.get(self._target_url, timeout=30)
             response.raise_for_status()  # Raise an exception for bad status codes
-
+            # ctx.logger.info(f"Response: {response.text}")
             extracted_text = self._textractor(response.text)
 
             if extracted_text:
@@ -59,7 +56,7 @@ if __name__ == "__main__":
     agent = ScraperAgent(
         name="scraper_agent",
         seed=SCRAPER_SEED,
-        target_url="https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html",  # Example URL
+        target_url="https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2025/visa-bulletin-for-may-2025.html",  # Example URL
         preprocessor_address=PREPROCESSOR_ADDRESS,
     )
     agent.run()

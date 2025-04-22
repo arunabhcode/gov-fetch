@@ -37,8 +37,10 @@ class QandAAgent(Agent):
             ollama.list()
         except Exception as e:
             self.logger.warning(f"Ollama server might not be running or reachable: {e}")
+        self.on_message(model=ProcessedData, replies=QAResult)(
+            self.handle_processed_data
+        )
 
-    @qna_proto.on_message(model=ProcessedData, replies=QAResult)
     async def handle_processed_data(
         self, ctx: Context, sender: str, msg: ProcessedData
     ):
@@ -53,7 +55,8 @@ class QandAAgent(Agent):
                 f"No chunks found containing keyword '{self._keyword}'. Cannot generate prompt."
             )
             return  # Or send an error message?
-
+        for chunk in filtered_chunks:
+            print(chunk)
         # Step 2: Generate the prompt
         # Note: generate_prompt from paragraph_chunk.py has a hardcoded question.
         # Consider making the question dynamic or part of the agent's configuration.
@@ -78,7 +81,7 @@ class QandAAgent(Agent):
         except Exception as e:
             ctx.logger.error(f"Error querying Ollama: {e}")
             answer = f"Error: Could not get answer from Ollama. {e}"  # Send error back
-
+        ctx.logger.info(f"Answer: {answer}")
         # Step 4: Send Prompt and Answer to Mail Agent
         await ctx.send(self._mail_address, QAResult(prompt=prompt, answer=answer))
         ctx.logger.info(f"Sent Q&A result to {self._mail_address}")
@@ -88,21 +91,19 @@ class QandAAgent(Agent):
         matching_chunks = []
         keyword_lower = keyword.lower()
         for chunk in chunks:
-        if keyword_lower in chunk.lower():
-            matching_chunks.append(chunk)
-        if not matching_chunks:
-            logging.warning(f"No chunks found containing the keyword: '{keyword}'")
-        else:
-            logging.info(
-                f"Found {len(matching_chunks)} chunks containing the keyword: '{keyword}'"
-            )
+            if keyword_lower in chunk.lower():
+                matching_chunks.append(chunk)
+            if not matching_chunks:
+                print(f"No chunks found containing the keyword: '{keyword}'")
+            else:
+                print(
+                    f"Found {len(matching_chunks)} chunks containing the keyword: '{keyword}'"
+                )
         return matching_chunks
-
 
     # combine chunks into a single string
     def combine_chunks(self, chunks: list[str]) -> str:
         return " ".join(chunks)
-
 
     def generate_prompt(self, chunks: list[str]) -> str:
         combined_chunks = self.combine_chunks(chunks)
@@ -110,9 +111,10 @@ class QandAAgent(Agent):
         You are a helpful assistant that can answer questions about the following markdown text that extracts dates from the two provided tables with information about country and visa type, THE FIRST TABLE IS FOR FINAL ACTION DATES AND THE SECOND TABLE IS FOR DATES OF FILING:
         {combined_chunks}
 
-        What are the two dates for employment based 2nd preference category for india?
+        What are the final action dates for family based f2a visa for india?
         """
         return prompt
+
 
 # Example Usage (if run directly, replace with actual setup in main.py)
 if __name__ == "__main__":

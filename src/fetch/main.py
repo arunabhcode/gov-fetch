@@ -2,7 +2,7 @@ import os
 from uagents import Bureau
 
 # Import Agent classes and protocols
-from scrape import ScraperAgent, scrape_proto, ScrapedData
+from scrape import ScraperAgent, ScrapedData
 from preprocessor import PreprocessorAgent, preprocessor_proto, ProcessedData
 from rag import QandAAgent, qna_proto, QAResult
 from mail import MailAgent, mail_proto
@@ -15,9 +15,9 @@ MAIL_SEED = os.getenv("MAIL_SEED", "mail_agent_secret_phrase")
 
 TARGET_URL = os.getenv(
     "TARGET_URL",
-    "https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html",
+    "https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/2025/visa-bulletin-for-may-2025.html",
 )
-SEARCH_KEYWORD = os.getenv("SEARCH_KEYWORD", "2nd")  # Keyword for Q&A filtering
+SEARCH_KEYWORD = os.getenv("SEARCH_KEYWORD", "f2a")  # Keyword for Q&A filtering
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:14b")  # Ollama model for RAG
 
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
@@ -26,16 +26,16 @@ RECIPIENT_EMAILS = os.getenv("RECIPIENT_EMAILS", "test@example.com").split(
     ","
 )  # Comma-separated list
 
-if not MAILGUN_API_KEY or not MAILGUN_DOMAIN:
-    print(
-        "Error: MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables must be set."
-    )
-    exit(1)
-if not RECIPIENT_EMAILS or not RECIPIENT_EMAILS[0]:
-    print(
-        "Warning: RECIPIENT_EMAILS environment variable is not set or empty. Mail agent will not send emails."
-    )
-    # Optionally exit(1) if emails are mandatory
+# if not MAILGUN_API_KEY or not MAILGUN_DOMAIN:
+#     print(
+#         "Error: MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables must be set."
+#     )
+#     exit(1)
+# if not RECIPIENT_EMAILS or not RECIPIENT_EMAILS[0]:
+#     print(
+#         "Warning: RECIPIENT_EMAILS environment variable is not set or empty. Mail agent will not send emails."
+#     )
+# Optionally exit(1) if emails are mandatory
 
 # --- Agent Instantiation ---
 
@@ -76,19 +76,14 @@ scraper_agent = ScraperAgent(
 # --- Include Protocols ---
 # Ensure agents know about the protocols they interact with
 
-scraper_agent.include(scrape_proto, publish_manifest=True)
-scraper_agent.include(preprocessor_proto)  # Knows how to talk to preprocessor
-
 preprocessor_agent.include(preprocessor_proto, publish_manifest=True)
-preprocessor_agent.include(scrape_proto)  # Knows structure of incoming messages
-preprocessor_agent.include(qna_proto)  # Knows how to talk to qna
 
 qna_agent.include(qna_proto, publish_manifest=True)
-preprocessor_agent.include(preprocessor_proto)  # Knows structure of incoming messages
-qna_agent.include(mail_proto)  # Knows how to talk to mail
+# preprocessor_agent.include(preprocessor_proto)  # Knows structure of incoming messages
+# qna_agent.include(mail_proto)  # Knows how to talk to mail
 
-mail_agent.include(mail_proto, publish_manifest=True)
-qna_agent.include(qna_proto)  # Knows structure of incoming messages
+# mail_agent.include(mail_proto, publish_manifest=True)
+# qna_agent.include(qna_proto)  # Knows structure of incoming messages
 
 # --- Bureau Setup ---
 print("Setting up Bureau...")
@@ -96,13 +91,13 @@ bureau = Bureau()
 bureau.add(scraper_agent)
 bureau.add(preprocessor_agent)
 bureau.add(qna_agent)
-bureau.add(mail_agent)
+# bureau.add(mail_agent)
 
-print(f"Agents added to Bureau:")
+print("Agents added to Bureau:")
 print(f"- Scraper: {scraper_agent.address}")
-print(f"- Preprocessor: {preprocessor_agent.address}")
-print(f"- QnA: {qna_agent.address}")
-print(f"- Mail: {mail_agent.address}")
+# print(f"- Preprocessor: {preprocessor_agent.address}")
+# print(f"- QnA: {qna_agent.address}")
+# print(f"- Mail: {mail_agent.address}")
 
 # --- Run Bureau ---
 if __name__ == "__main__":

@@ -25,8 +25,9 @@ class PreprocessorAgent(Agent):
         self._qna_address = qna_address
         nltk.download("punkt")
         nltk.download("punkt_tab")
+        # Register the message handler using decorator pattern
+        self.on_message(model=ScrapedData, replies=ProcessedData)(self.preprocess_text)
 
-    @preprocessor_proto.on_message(model=ScrapedData, replies=ProcessedData)
     async def preprocess_text(self, ctx: Context, sender: str, msg: ScrapedData):
         ctx.logger.info(f"Received text from {sender}. Starting preprocessing.")
 
