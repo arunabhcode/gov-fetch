@@ -2,7 +2,7 @@ from uagents import Agent, Context, Model, Protocol
 import os
 import ollama  # Make sure ollama library is installed
 
-from custom_types import ProcessedData, QAResult
+from fetch.custom_types import ProcessedData, QAResult
 
 
 # Define the Q&A Agent
@@ -23,7 +23,7 @@ class QandAAgent(Agent):
         try:
             ollama.list()
         except Exception as e:
-            self.logger.warning(f"Ollama server might not be running or reachable: {e}")
+            print(f"Ollama server might not be running or reachable: {e}")
         self.on_message(model=ProcessedData, replies=None)(self.handle_processed_data)
 
     async def handle_processed_data(

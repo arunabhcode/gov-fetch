@@ -2,7 +2,7 @@ from datetime import datetime, UTC
 from uagents import Agent, Context
 import calendar
 
-from custom_types import TriggerScrape, DisableTrigger
+from fetch.custom_types import TriggerScrape, DisableTrigger
 
 # --- Controller Agent ---
 CHECK_INTERVAL_HOURS = 6  # Check every 6 hours

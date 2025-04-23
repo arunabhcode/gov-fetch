@@ -1,14 +1,14 @@
 import os
 from uagents import Bureau
 
-from config_loader import EnvLoader
+from fetch.config_loader import EnvLoader
 
 # Only import Agent classes
-from scrape import ScraperAgent
-from preprocessor import PreprocessorAgent
-from rag import QandAAgent
-from mail import MailAgent
-from controller import ControllerAgent
+from fetch.scrape import ScraperAgent
+from fetch.preprocessor import PreprocessorAgent
+from fetch.rag import QandAAgent
+from fetch.mail import MailAgent
+from fetch.controller import ControllerAgent
 
 
 if not EnvLoader.load_and_check():

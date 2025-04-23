@@ -3,7 +3,7 @@ import os
 from uagents import Agent, Context
 from txtai.pipeline import Textractor
 
-from custom_types import ScrapedData, TriggerScrape
+from fetch.custom_types import ScrapedData, TriggerScrape
 
 
 # Define the Scraper Agent

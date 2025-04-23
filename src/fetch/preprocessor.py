@@ -3,7 +3,7 @@ import os
 import re
 import nltk
 
-from custom_types import ScrapedData, ProcessedData
+from fetch.custom_types import ScrapedData, ProcessedData
 
 
 # Define the Preprocessor Agent

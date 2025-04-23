@@ -3,7 +3,7 @@ import os
 import requests
 import datetime
 
-from custom_types import QAResult, DisableTrigger
+from fetch.custom_types import QAResult, DisableTrigger
 
 
 # Define the Mail Agent
