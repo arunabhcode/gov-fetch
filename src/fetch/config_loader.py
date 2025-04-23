@@ -70,7 +70,6 @@ class EnvLoader:
         mailgun_api_key = os.getenv("MAILGUN_API_KEY")
         mailgun_domain = os.getenv("MAILGUN_DOMAIN")
         recipient_emails = os.getenv("RECIPIENT_EMAILS")
-        print(mailgun_api_key, mailgun_domain, recipient_emails)
         if not mailgun_api_key or not mailgun_domain:
             raise ValueError(
                 "Error: MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables must be set."

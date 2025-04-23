@@ -42,7 +42,6 @@ preprocessor_agent = PreprocessorAgent(
 scraper_agent = ScraperAgent(
     name="scraper",
     seed=os.getenv("SCRAPER_SEED"),
-    target_url=os.getenv("TARGET_URL"),
     preprocessor_address=preprocessor_agent.address,  # This is okay, preprocessor is already created
 )
 
