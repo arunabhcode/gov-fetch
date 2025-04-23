@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gov-fetch"
+version = "0.1.0"
+description = "A platform to query government websites, integrate data, and answer questions using an LLM."
+authors = [
+    { name = "Arunabh Sharma", email = "arunabh.1990@gmail.com" },
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "uagents",
+    "uagents-ai-engine",
+    "requests",
+    "ollama",
+    "txtai",
+    "nltk",
+    "python-dotenv",
+]
+
+# Optional: Define project URLs, classifiers, etc.
+[project.urls]
+"Homepage" = "https://github.com/arunabhcode/gov-fetch"

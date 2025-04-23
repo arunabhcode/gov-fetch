@@ -1,8 +1,0 @@
-uagents
-uagents-ai-engine
-requests
-beautifulsoup4
-nltk
-ollama
-txtai
-python-dotenv
