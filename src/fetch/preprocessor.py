@@ -1,17 +1,9 @@
-from uagents import Agent, Context, Model, Protocol
+from uagents import Agent, Context, Model
 import os
 import re
 import nltk
 
-
-# Define the message model for scraped text (from ScraperAgent)
-class ScrapedData(Model):
-    text: str
-
-
-# Define the message model for processed text chunks
-class ProcessedData(Model):
-    chunks: list[str]
+from custom_types import ScrapedData, ProcessedData, QAResult
 
 
 # Define the Preprocessor Agent
@@ -22,7 +14,7 @@ class PreprocessorAgent(Agent):
         nltk.download("punkt")
         nltk.download("punkt_tab")
         # Register the message handler using decorator pattern
-        self.on_message(model=ScrapedData, replies=ProcessedData)(self.preprocess_text)
+        self.on_message(model=ScrapedData, replies=None)(self.preprocess_text)
 
     async def preprocess_text(self, ctx: Context, sender: str, msg: ScrapedData):
         ctx.logger.info(f"Received text from {sender}. Starting preprocessing.")

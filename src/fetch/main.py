@@ -2,9 +2,11 @@ import os
 from uagents import Bureau
 
 from config_loader import EnvLoader
-from scrape import ScraperAgent, ScrapedData
-from preprocessor import PreprocessorAgent, ProcessedData
-from rag import QandAAgent, QAResult
+
+# Only import Agent classes
+from scrape import ScraperAgent
+from preprocessor import PreprocessorAgent
+from rag import QandAAgent
 from mail import MailAgent
 from controller import ControllerAgent
 

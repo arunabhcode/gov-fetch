@@ -1,17 +1,9 @@
 import requests
-
-# from bs4 import BeautifulSoup
-from txtai.pipeline import Textractor
-from uagents import Agent, Context, Model
 import os
+from uagents import Agent, Context
+from txtai.pipeline import Textractor
 
-# Import the trigger model from controller
-from controller import TriggerScrape
-
-
-# Define the message model for scraped text
-class ScrapedData(Model):
-    text: str
+from custom_types import ScrapedData, TriggerScrape
 
 
 # Define the Scraper Agent
@@ -21,7 +13,7 @@ class ScraperAgent(Agent):
         self._preprocessor_address = preprocessor_address
         # Initialize Textractor (assuming default settings)
         self._textractor = Textractor()
-        self.on_message(model=TriggerScrape, replies=ScrapedData)(self.handle_trigger)
+        self.on_message(model=TriggerScrape, replies=None)(self.handle_trigger)
 
     async def handle_trigger(self, ctx: Context, sender: str, msg: TriggerScrape):
         if msg.trigger:

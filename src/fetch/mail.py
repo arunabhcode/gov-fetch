@@ -1,16 +1,9 @@
-from uagents import Agent, Context, Model
+from uagents import Agent, Context, Model, Protocol
 import os
 import requests
 import datetime
 
-# Import the disable model from controller
-from controller import DisableTrigger
-
-
-# Define the message model for Q&A results (from QandAAgent)
-class QAResult(Model):
-    prompt: str
-    answer: str
+from custom_types import QAResult, DisableTrigger
 
 
 # Define the Mail Agent
@@ -32,7 +25,7 @@ class MailAgent(Agent):
         self._mailgun_url = (
             f"https://api.mailgun.net/v3/{self._mailgun_domain}/messages"
         )
-        self.on_message(model=QAResult)(self.handle_qa_result)
+        self.on_message(model=QAResult, replies=None)(self.handle_qa_result)
 
     async def handle_qa_result(self, ctx: Context, sender: str, msg: QAResult):
         ctx.logger.info(f"Received Q&A result from {sender}. Preparing email.")

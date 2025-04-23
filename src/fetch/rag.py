@@ -2,16 +2,7 @@ from uagents import Agent, Context, Model, Protocol
 import os
 import ollama  # Make sure ollama library is installed
 
-
-# Define the message model for processed text chunks (from PreprocessorAgent)
-class ProcessedData(Model):
-    chunks: list[str]
-
-
-# Define the message model for Q&A results
-class QAResult(Model):
-    prompt: str
-    answer: str
+from custom_types import ProcessedData, QAResult
 
 
 # Define the Q&A Agent
@@ -33,9 +24,7 @@ class QandAAgent(Agent):
             ollama.list()
         except Exception as e:
             self.logger.warning(f"Ollama server might not be running or reachable: {e}")
-        self.on_message(model=ProcessedData, replies=QAResult)(
-            self.handle_processed_data
-        )
+        self.on_message(model=ProcessedData, replies=None)(self.handle_processed_data)
 
     async def handle_processed_data(
         self, ctx: Context, sender: str, msg: ProcessedData
