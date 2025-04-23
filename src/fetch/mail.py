@@ -3,6 +3,9 @@ import os
 import requests
 import datetime
 
+# Import the disable model from controller
+from controller import DisableTrigger
+
 
 # Define the message model for Q&A results (from QandAAgent)
 class QAResult(Model):
@@ -19,11 +22,13 @@ class MailAgent(Agent):
         recipients: list[str],
         mailgun_api_key: str,
         mailgun_domain: str,
+        controller_address: str,
     ):
         super().__init__(name=name, seed=seed)
         self._recipients = recipients
         self._mailgun_api_key = mailgun_api_key
         self._mailgun_domain = mailgun_domain
+        self._controller_address = controller_address
         self._mailgun_url = (
             f"https://api.mailgun.net/v3/{self._mailgun_domain}/messages"
         )
@@ -68,12 +73,31 @@ GovFetch Agent
             ctx.logger.info(
                 f"Successfully sent email to {len(self._recipients)} recipients via Mailgun."
             )
+            # Send disable signal to Controller Agent
+            await self.send_disable_signal(ctx)
         except requests.exceptions.RequestException as e:
             ctx.logger.error(f"Mailgun API error: {e}")
             if e.response is not None:
                 ctx.logger.error(f"Mailgun response: {e.response.text}")
         except Exception as e:
             ctx.logger.error(f"Error sending email: {e}")
+
+    async def send_disable_signal(self, ctx: Context):
+        """Sends the DisableTrigger message to the controller agent."""
+        if not self._controller_address:
+            ctx.logger.warning(
+                "Controller address not set, cannot send disable signal."
+            )
+            return
+        try:
+            await ctx.send(self._controller_address, DisableTrigger(disable=True))
+            ctx.logger.info(
+                f"Sent DisableTrigger to controller {self._controller_address}"
+            )
+        except Exception as e:
+            ctx.logger.error(
+                f"Failed to send DisableTrigger to controller {self._controller_address}: {e}"
+            )
 
 
 # Example Usage (if run directly, replace with actual setup in main.py)
@@ -97,6 +121,7 @@ if __name__ == "__main__":
         recipients=RECIPIENT_EMAILS,
         mailgun_api_key=MAILGUN_API_KEY,
         mailgun_domain=MAILGUN_DOMAIN,
+        controller_address="agent_controller_address...",  # Example placeholder
     )
 
     # Expose the agent's endpoint for the QandAAgent

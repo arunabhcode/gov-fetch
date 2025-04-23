@@ -1,11 +1,12 @@
-import asyncio
-from datetime import datetime, UTC
+from datetime import datetime, UTC, date
 from uagents import Agent, Context, Model
+import calendar
 
 
 # --- Models ---
 class TriggerScrape(Model):
     trigger: bool
+    url: str
 
 
 class DisableTrigger(Model):
@@ -90,10 +91,56 @@ class ControllerAgent(Agent):
                 "Startup/New month condition not met. No initial trigger sent."
             )
 
-    async def send_trigger(self, ctx: Context):
-        """Sends the TriggerScrape message to the scraper."""
+    def compose_url(self) -> str:
+        """Composes the target URL based on the next month and year logic."""
+        now = datetime.now(UTC)
+        current_year = now.year
+        current_month = now.month
+
+        # Calculate target month (next month)
+        target_month_num = current_month + 1
+        year_offset = 0
+        if target_month_num > 12:
+            target_month_num = 1
+            year_offset = 1  # Year increases if we wrap from Dec to Jan
+
+        # Calculate target year based on *current* month
+        # If current month is Oct, Nov, Dec, target year is next year
+        # Otherwise, it's current year.
+        # Note: The year_offset for Dec->Jan wrap is handled separately
+        if current_month >= 10:  # October or later
+            target_year = current_year + 1
+        else:
+            target_year = current_year
+
+        # Ensure Dec->Jan wrap correctly affects year if it wasn't already bumped
+        if year_offset == 1 and current_month < 10:
+            target_year = current_year + 1
+
+        # Get lowercase month name
         try:
-            await ctx.send(self._scraper_address, TriggerScrape(trigger=True))
+            target_month_name = calendar.month_name[target_month_num].lower()
+        except IndexError:
+            # Should not happen with valid month calculation
+            target_month_name = "invalid_month"
+
+        # Assemble URL
+        base_url = (
+            "https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin/"
+        )
+        url = f"{base_url}{target_year}/visa-bulletin-for-{target_month_name}-{current_year}.html"
+        return url
+
+    async def send_trigger(self, ctx: Context):
+        """Sends the TriggerScrape message to the scraper with the composed URL."""
+        target_url = (
+            self.compose_url()
+        )  # compose url added here because if this is perma deployed, url might change
+        ctx.logger.info(f"Composed target URL: {target_url}")
+        try:
+            await ctx.send(
+                self._scraper_address, TriggerScrape(trigger=True, url=target_url)
+            )
             ctx.logger.info(f"Sent TriggerScrape to {self._scraper_address}")
         except Exception as e:
             ctx.logger.error(

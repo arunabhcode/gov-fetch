@@ -2,8 +2,11 @@ import requests
 
 # from bs4 import BeautifulSoup
 from txtai.pipeline import Textractor
-from uagents import Agent, Context, Model, Protocol
+from uagents import Agent, Context, Model
 import os
+
+# Import the trigger model from controller
+from controller import TriggerScrape
 
 
 # Define the message model for scraped text
@@ -13,21 +16,29 @@ class ScrapedData(Model):
 
 # Define the Scraper Agent
 class ScraperAgent(Agent):
-    def __init__(
-        self, name: str, seed: str, target_url: str, preprocessor_address: str
-    ):
+    def __init__(self, name: str, seed: str, preprocessor_address: str):
         super().__init__(name=name, seed=seed)
-        self._target_url = target_url
         self._preprocessor_address = preprocessor_address
         # Initialize Textractor (assuming default settings)
         self._textractor = Textractor()
-        # Register the interval handler using decorator pattern
-        self.on_interval(period=300.0)(self.fetch_and_extract)
+        self.on_message(model=TriggerScrape, replies=ScrapedData)(self.handle_trigger)
 
-    async def fetch_and_extract(self, ctx: Context):
-        ctx.logger.info(f"Fetching content from {self._target_url}")
+    async def handle_trigger(self, ctx: Context, sender: str, msg: TriggerScrape):
+        if msg.trigger:
+            ctx.logger.info(
+                f"Received trigger signal from {sender}. Starting fetch and extract."
+            )
+            await self.fetch_and_extract(msg.url, ctx)  # Call the existing logic
+        else:
+            ctx.logger.warning(
+                f"Received non-true trigger signal from {sender}. Ignoring."
+            )
+
+    # This method is now called by handle_trigger, not by an interval
+    async def fetch_and_extract(self, url: str, ctx: Context):
+        ctx.logger.info(f"Fetching content from {url}")
         try:
-            response = requests.get(self._target_url, timeout=30)
+            response = requests.get(url, timeout=30)
             response.raise_for_status()  # Raise an exception for bad status codes
             # ctx.logger.info(f"Response: {response.text}")
             extracted_text = self._textractor(response.text)
