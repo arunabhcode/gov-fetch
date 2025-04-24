@@ -1,41 +1,56 @@
-# gov_fetch
-App to get data from govt websites like USCIS and export control classifications
+# Gov Fetch
 
-# Gov Fetch Systemd Service
+App to get data from government websites like USCIS and export control classifications
 
 ## Installation
 
-1. Copy the systemd service file to the system directory:
+Installation is simple with our automated script:
 
 ```bash
-sudo cp gov-fetch.service /etc/systemd/system/
+# Clone the repository (if you haven't already)
+git clone https://github.com/arunabhcode/gov_fetch.git
+cd gov_fetch
+
+# Run the installation script as root
+sudo ./install.sh
 ```
 
-2. (Optional) Create a configuration file to specify your Gov Fetch installation directory:
+The installation script will:
+
+1. Build the Docker image
+2. Copy files to /opt/gov-fetch
+3. Set up the systemd service
+4. Automatically detect if you have a GPU and use the appropriate profile
+5. Enable and start the service
+
+## Useful Commands
+
+Once installed, you can use these commands to manage Gov Fetch:
 
 ```bash
-sudo mkdir -p /etc/default
-echo "GOVFETCH_DIR=/path/to/your/gov_fetch" | sudo tee /etc/default/gov-fetch
-```
-
-If you skip this step, the service will default to `~/gov_fetch`.
-
-3. Reload the systemd daemon:
-
-```bash
+# Reload the systemd daemon (after making changes to service file)
 sudo systemctl daemon-reload
-```
 
-4. Enable the service to start on boot:
+# Check service status
+sudo systemctl status gov-fetch
 
-```bash
-sudo systemctl enable gov-fetch
-```
+# View logs
+sudo journalctl -u gov-fetch -f
 
-5. Start the service:
-
-```bash
+# Start the service
 sudo systemctl start gov-fetch
+
+# Stop the service
+sudo systemctl stop gov-fetch
+
+# Restart the service
+sudo systemctl restart gov-fetch
+
+# Enable the service to start on boot
+sudo systemctl enable gov-fetch
+
+# Disable the service from starting on boot
+sudo systemctl disable gov-fetch
 ```
 
 ## Automatic GPU Detection
@@ -72,26 +87,18 @@ ExecStart=/usr/bin/docker compose -f ${GOVFETCH_DIR}/docker-compose.yml --profil
 sudo systemctl restart gov-fetch
 ```
 
-## Monitoring
+## Uninstallation
 
-Check service status:
-
-```bash
-sudo systemctl status gov-fetch
-```
-
-View logs:
+To completely remove Gov Fetch from your system:
 
 ```bash
-sudo journalctl -u gov-fetch -f
+# Run the uninstallation script as root
+sudo ./uninstall.sh
 ```
 
-## Dynamic Configuration
+The uninstallation script will:
 
-The service file uses the following systemd features to be more dynamic:
-
-- `%u` and `%g`: Uses the user and group of the person who started the service
-- `%h`: Uses the home directory of the user
-- `EnvironmentFile`: Reads configuration from `/etc/default/gov-fetch` if it exists
-- Environment variables for locations and profiles
-- Automatic GPU detection for selecting the appropriate profile
+1. Stop and disable the service
+2. Remove the systemd service files
+3. Clean up Docker resources
+4. Remove the installation directory
