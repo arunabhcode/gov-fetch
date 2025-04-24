@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  ollama-cpu:
+    image: ollama/ollama
+    pull_policy: always
+    restart: unless-stopped
+    volumes:
+      - ${HOME}/.ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    profiles:
+      - cpu
+
+  # GPU configuration as a separate service
+  ollama-gpu:
+    image: ollama/ollama
+    pull_policy: always
+    restart: unless-stopped
+    volumes:
+      - ${HOME}/.ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    profiles:
+      - gpu
+
+  gov-fetch-cpu:
+    image: gov/fetch
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=http://ollama-cpu:11434
+    profiles:
+      - cpu
+    depends_on:
+      - ollama-cpu
+
+  gov-fetch-gpu:
+    image: gov/fetch
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=http://ollama-gpu:11434
+    profiles:
+      - gpu
+    depends_on:
+      - ollama-gpu
+

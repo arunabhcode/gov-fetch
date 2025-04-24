@@ -1,4 +1,4 @@
-from uagents import Agent, Context, Model, Protocol
+from uagents import Agent, Context
 import os
 import ollama  # Make sure ollama library is installed
 
@@ -19,9 +19,13 @@ class QandAAgent(Agent):
         self._mail_address = mail_address
         self._keyword = keyword
         self._ollama_model = ollama_model
+        if not os.getenv("OLLAMA_HOST"):
+            self._ollama_host = ollama.Client(host="http://ollama-cpu:11434")
+        else:
+            self._ollama_host = ollama.Client(host=os.getenv("OLLAMA_HOST"))
         # Check if Ollama server is running (optional but good practice)
         try:
-            ollama.list()
+            self._ollama_host.list()
         except Exception as e:
             print(f"Ollama server might not be running or reachable: {e}")
         self.on_message(model=ProcessedData, replies=None)(self.handle_processed_data)
@@ -55,7 +59,7 @@ class QandAAgent(Agent):
         # Step 3: Call Ollama for the answer
         try:
             ctx.logger.info(f"Querying Ollama model '{self._ollama_model}'...")
-            response = ollama.chat(
+            response = self._ollama_host.chat(
                 model=self._ollama_model,
                 messages=[{"role": "user", "content": prompt}],
                 # Options from paragraph_chunk.py, make configurable if needed
