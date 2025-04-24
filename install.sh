@@ -41,6 +41,28 @@ print_status "Copying files to $INSTALL_DIR..."
 cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR"
 chmod +x "$INSTALL_DIR/detect-gpu.sh"
 
+print_status "Updating docker-compose.yml with user home directory..."
+if [ -z "$SUDO_USER" ]; then
+    print_warning "SUDO_USER environment variable not set. Using /root as home directory."
+    USER_HOME="/root"
+else
+    USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+    if [ -z "$USER_HOME" ]; then
+        print_error "Could not determine home directory for user $SUDO_USER. Exiting."
+        exit 1
+    fi
+    print_status "Using home directory: $USER_HOME"
+fi
+
+COMPOSE_FILE="$INSTALL_DIR/docker-compose.yml"
+if [ -f "$COMPOSE_FILE" ]; then
+    # Use # as sed delimiter to avoid issues with / in paths
+    sed -i "s#\${HOME}/.ollama#${USER_HOME}/.ollama#g" "$COMPOSE_FILE"
+    print_status "Updated volume paths in $COMPOSE_FILE"
+else
+    print_warning "docker-compose.yml not found in $INSTALL_DIR. Skipping update."
+fi
+
 # Detect if running with GPU
 if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
     print_status "NVIDIA GPU detected - service will use GPU profile"
