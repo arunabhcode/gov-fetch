@@ -19,6 +19,21 @@ class QandAAgent(Agent):
         self._mail_address = mail_address
         self._keyword = keyword
         self._ollama_model = ollama_model
+        self._search_keyword = os.getenv("SEARCH_KEYWORD")
+        self._keyword_to_prompt_dict = {
+            "f1": "What are the two dates for family based f1 visa for india?",
+            "f2a": "What are the two dates for family based f2a visa for india?",
+            "f2b": "What are the two dates for family based f2b visa for india?",
+            "f3": "What are the two dates for family based f3 visa for india?",
+            "f4": "What are the two dates for family based f4 visa for india?",
+            "eb1": "What are the two dates for employment based 1st preference visa for india?",
+            "eb2": "What are the two dates for employment based 2nd preference visa for india?",
+            "eb3": "What are the two dates for employment based 3rd preference visa for india?",
+        }
+        if self._search_keyword not in self._keyword_to_prompt_dict:
+            raise ValueError(
+                f"Invalid search keyword '{self._search_keyword}'. Must be one of {list(self._keyword_to_prompt_dict.keys())}"
+            )
         if not os.getenv("OLLAMA_HOST"):
             self._ollama_host = ollama.Client(host="http://ollama-cpu:11434")
         else:
@@ -93,7 +108,7 @@ class QandAAgent(Agent):
         prompt = f"""You are a helpful assistant that can answer questions using the following markdown text with dates from two provided tables with information about country and visa type, THE FIRST TABLE IS FOR FINAL ACTION DATES AND THE SECOND TABLE IS FOR DATES OF FILING:
 {combined_chunks}
 
-What are the two dates for family based f2a visa for india?"""
+{self._keyword_to_prompt_dict.get(self._search_keyword)}"""
         return prompt
 
 
