@@ -1,0 +1,32 @@
+[Unit]
+Description=Gov Fetch Service
+Documentation=https://github.com/arunabhcode/gov_fetch
+After=docker.service network-online.target
+Requires=docker.service network-online.target
+
+[Service]
+Type=simple
+User=%u
+Group=%g
+# Use EnvironmentFile to get installation location if needed
+EnvironmentFile=-/etc/default/gov-fetch
+# If GOVFETCH_DIR is not set, use a default
+Environment="GOVFETCH_DIR=%h/gov_fetch"
+# Auto-detect profile based on GPU presence (will be overridden by ExecStart)
+Environment="COMPOSE_PROFILES=cpu"
+WorkingDirectory=${GOVFETCH_DIR}
+
+# Auto-detect if GPU is present and set COMPOSE_PROFILES accordingly
+ExecStartPre=/bin/bash -c "chmod +x ${GOVFETCH_DIR}/detect-gpu.sh"
+ExecStartPre=/bin/bash -c "$(${GOVFETCH_DIR}/detect-gpu.sh > /tmp/gov-fetch-profile && source /tmp/gov-fetch-profile && echo COMPOSE_PROFILES=$COMPOSE_PROFILES)"
+ExecStartPre=/usr/bin/docker compose -f ${GOVFETCH_DIR}/docker-compose.yml down
+ExecStart=/bin/bash -c "source /tmp/gov-fetch-profile && /usr/bin/docker compose -f ${GOVFETCH_DIR}/docker-compose.yml --profile $COMPOSE_PROFILES up"
+ExecStop=/usr/bin/docker compose -f ${GOVFETCH_DIR}/docker-compose.yml down
+
+Restart=always
+RestartSec=10s
+TimeoutStartSec=180
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target 
