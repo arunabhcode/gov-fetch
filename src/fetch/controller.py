@@ -68,19 +68,16 @@ class ControllerAgent(Agent):
     async def run_startup_check(self, ctx: Context):
         """Checks if a trigger should be sent immediately on startup/new month."""
         now = datetime.now(UTC)
-        ctx.logger.info("Running startup/new month check.")
-        if (
-            self._trigger_enabled or not self._initial_check_done
-        ) and now.hour % TRIGGER_INTERVAL_HOURS == 0:
-            ctx.logger.info(
-                f"Startup/New month condition met ({now.day=}, {now.hour=}). Sending initial trigger."
-            )
-            await self.send_trigger(ctx)
-            self._initial_check_done = True
-        else:
-            ctx.logger.info(
-                "Startup/New month condition not met. No initial trigger sent."
-            )
+        ctx.logger.info("Running startup check.")
+        ctx.logger.info(
+            f"Startup condition met ({now.day=}, {now.hour=}). Sending initial trigger."
+        )
+        await self.send_trigger(ctx)
+        self._initial_check_done = True
+        self._last_checked_month = now.month
+        ctx.logger.info(
+            f"Startup check completed. Initial check done: {self._initial_check_done}, last checked month: {self._last_checked_month}"
+        )
 
     def compose_url(self) -> str:
         """Composes the target URL based on the next month and year logic."""
