@@ -4,12 +4,15 @@ App to get data from government websites like USCIS and export control classific
 
 ## Installation
 
-Installation is simple with our automated script:
+To install gov fetch you first need to create a .env file and fill out each of the entries:
 
 ```bash
 # Clone the repository (if you haven't already)
-git clone https://github.com/arunabhcode/gov_fetch.git
-cd gov_fetch
+git clone https://github.com/arunabhcode/gov-fetch.git
+cd gov-fetch
+
+# Copy template .env.example file and fill it out
+cp .env.example .env
 
 # Run the installation script as root
 sudo ./install.sh
