@@ -17,6 +17,7 @@ dependencies = [
     "requests",
     "ollama",
     "txtai",
+    "txtai[pipeline]",
     "nltk",
     "python-dotenv",
 ]
