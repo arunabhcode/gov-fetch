@@ -11,14 +11,7 @@ App to get data from govt websites like USCIS and export control classifications
 sudo cp gov-fetch.service /etc/systemd/system/
 ```
 
-2. Copy the GPU detection script:
-
-```bash
-chmod +x detect-gpu.sh
-sudo cp detect-gpu.sh /usr/local/bin/
-```
-
-3. (Optional) Create a configuration file to specify your Gov Fetch installation directory:
+2. (Optional) Create a configuration file to specify your Gov Fetch installation directory:
 
 ```bash
 sudo mkdir -p /etc/default
@@ -27,19 +20,19 @@ echo "GOVFETCH_DIR=/path/to/your/gov_fetch" | sudo tee /etc/default/gov-fetch
 
 If you skip this step, the service will default to `~/gov_fetch`.
 
-4. Reload the systemd daemon:
+3. Reload the systemd daemon:
 
 ```bash
 sudo systemctl daemon-reload
 ```
 
-5. Enable the service to start on boot:
+4. Enable the service to start on boot:
 
 ```bash
 sudo systemctl enable gov-fetch
 ```
 
-6. Start the service:
+5. Start the service:
 
 ```bash
 sudo systemctl start gov-fetch

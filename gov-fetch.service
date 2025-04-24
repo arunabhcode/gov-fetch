@@ -8,10 +8,8 @@ Requires=docker.service network-online.target
 Type=simple
 User=%u
 Group=%g
-# Use EnvironmentFile to get installation location if needed
-EnvironmentFile=-/etc/default/gov-fetch
 # If GOVFETCH_DIR is not set, use a default
-Environment="GOVFETCH_DIR=%h/gov_fetch"
+Environment="GOVFETCH_DIR=/opt/gov-fetch"
 # Auto-detect profile based on GPU presence (will be overridden by ExecStart)
 Environment="COMPOSE_PROFILES=cpu"
 WorkingDirectory=${GOVFETCH_DIR}
