@@ -14,6 +14,9 @@ cd gov-fetch
 # Copy template .env.example file and fill it out
 cp .env.example .env
 
+# Pull an Ollama model (replace <model_name> with the desired model)
+./ollama_docker.sh pull <model_name>
+
 # Run the installation script as root
 sudo ./install.sh
 ```
