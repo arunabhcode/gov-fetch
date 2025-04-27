@@ -38,8 +38,28 @@ print_status "Creating installation directory at $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
 
 print_status "Copying files to $INSTALL_DIR..."
-cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR"
-chmod +x "$INSTALL_DIR/detect-gpu.sh"
+# Copy specific necessary files and the scripts directory
+cp "$SCRIPT_DIR/docker-compose.yml" "$INSTALL_DIR/"
+cp "$SCRIPT_DIR/Dockerfile" "$INSTALL_DIR/"
+cp -r "$SCRIPT_DIR/src" "$INSTALL_DIR/"
+# Ensure the scripts directory exists before copying into it
+mkdir -p "$INSTALL_DIR/scripts"
+cp -r "$SCRIPT_DIR/scripts"/* "$INSTALL_DIR/scripts/"
+
+# Copy .env if it exists
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    cp "$SCRIPT_DIR/.env" "$INSTALL_DIR/"
+    print_status "Copied .env file to $INSTALL_DIR"
+else
+    print_warning ".env file not found in $SCRIPT_DIR. Ensure it's created in $INSTALL_DIR manually if needed."
+fi
+
+# Make scripts executable
+chmod +x "$INSTALL_DIR/scripts/detect-gpu.sh"
+chmod +x "$INSTALL_DIR/scripts/install.sh"
+chmod +x "$INSTALL_DIR/scripts/uninstall.sh"
+chmod +x "$INSTALL_DIR/scripts/ollama_docker.sh"
+
 
 print_status "Updating docker-compose.yml with user home directory..."
 if [ -z "$SUDO_USER" ]; then
@@ -71,6 +91,7 @@ else
 fi
 
 print_status "Setting up systemd service..."
+# Copy the service file from the source directory, not the install directory yet
 cp "$SCRIPT_DIR/gov-fetch.service" /etc/systemd/system/
 
 # Reload systemd, enable and start service

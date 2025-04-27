@@ -15,7 +15,7 @@ Environment="COMPOSE_PROFILES=cpu"
 WorkingDirectory=/opt/gov-fetch
 
 # Auto-detect if GPU is present and set COMPOSE_PROFILES accordingly
-ExecStartPre=/bin/bash -c "${GOVFETCH_DIR}/detect-gpu.sh"
+ExecStartPre=/bin/bash -c "${GOVFETCH_DIR}/scripts/detect-gpu.sh"
 ExecStartPre=/usr/bin/docker compose -f ${GOVFETCH_DIR}/docker-compose.yml down
 ExecStart=/usr/bin/docker compose -f ${GOVFETCH_DIR}/docker-compose.yml --profile ${COMPOSE_PROFILES} up
 ExecStop=/usr/bin/docker compose -f ${GOVFETCH_DIR}/docker-compose.yml down
@@ -26,4 +26,4 @@ TimeoutStartSec=180
 TimeoutStopSec=120
 
 [Install]
-WantedBy=multi-user.target 
+WantedBy=multi-user.target

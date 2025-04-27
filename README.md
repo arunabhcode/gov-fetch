@@ -15,10 +15,10 @@ cd gov-fetch
 cp .env.example .env
 
 # Pull an Ollama model (replace <model_name> with the desired model)
-./ollama_docker.sh pull <model_name>
+./scripts/ollama_docker.sh pull <model_name>
 
 # Run the installation script as root
-sudo ./install.sh
+sudo ./scripts/install.sh
 ```
 
 The installation script will:
@@ -99,7 +99,7 @@ To completely remove Gov Fetch from your system:
 
 ```bash
 # Run the uninstallation script as root
-sudo ./uninstall.sh
+sudo ./scripts/uninstall.sh
 ```
 
 The uninstallation script will:
