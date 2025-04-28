@@ -21,14 +21,14 @@ class QandAAgent(Agent):
         self._ollama_model = ollama_model
         self._search_keyword = os.getenv("SEARCH_KEYWORD")
         self._keyword_to_prompt_dict = {
-            "f1": "What are the two dates for family based f1 visa for india?",
-            "f2a": "What are the two dates for family based f2a visa for india?",
-            "f2b": "What are the two dates for family based f2b visa for india?",
-            "f3": "What are the two dates for family based f3 visa for india?",
-            "f4": "What are the two dates for family based f4 visa for india?",
-            "eb1": "What are the two dates for employment based 1st preference visa for india?",
-            "eb2": "What are the two dates for employment based 2nd preference visa for india?",
-            "eb3": "What are the two dates for employment based 3rd preference visa for india?",
+            "f1": f"What are the two dates for family based f1 visa for {os.getenv("COUNTRY_NAME")}?",
+            "f2a": f"What are the two dates for family based f2a visa for {os.getenv("COUNTRY_NAME")}?",
+            "f2b": f"What are the two dates for family based f2b visa for {os.getenv("COUNTRY_NAME")}?",
+            "f3": f"What are the two dates for family based f3 visa for {os.getenv("COUNTRY_NAME")}?",
+            "f4": f"What are the two dates for family based f4 visa for {os.getenv("COUNTRY_NAME")}?",
+            "eb1": f"What are the two dates for employment based 1st preference visa for {os.getenv("COUNTRY_NAME")}?",
+            "eb2": f"What are the two dates for employment based 2nd preference visa for {os.getenv("COUNTRY_NAME")}?",
+            "eb3": f"What are the two dates for employment based 3rd preference visa for {os.getenv("COUNTRY_NAME")}?",
         }
         if self._search_keyword not in self._keyword_to_prompt_dict:
             raise ValueError(
