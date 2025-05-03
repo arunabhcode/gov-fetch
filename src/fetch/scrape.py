@@ -46,7 +46,7 @@ class ScraperAgent(Agent):
                 ctx.logger.warning("No text extracted.")
 
         except requests.exceptions.RequestException as e:
-            ctx.logger.error(f"Error fetching URL {self._target_url}: {e}")
+            ctx.logger.error(f"Error fetching URL {url}: {e}")
         except Exception as e:
             ctx.logger.error(f"Error during text extraction: {e}")
 
