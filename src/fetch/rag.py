@@ -13,7 +13,7 @@ class QandAAgent(Agent):
         seed: str,
         mail_address: str,
         keyword: str,
-        ollama_model: str = "qwen2.5:32b",
+        ollama_model: str = "gpt-oss:20b",
     ):
         super().__init__(name=name, seed=seed)
         self._mail_address = mail_address
